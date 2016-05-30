@@ -1,29 +1,29 @@
 package services
 
 trait Action {
-  val contributor: User
+  val contributor: Member
   val tags: Array[ActionTag]
 }
 
 // RootAction explain to Activity that is included it.
-case class RootAction(contributor: User, initTags: Array[ActionTag]) extends Action {
+case class RootAction(contributor: Member, initTags: Array[ActionTag]) extends Action {
   val tags = ActionTag.rootTag +: initTags
 }
 
 // DocumentAction is main content of Activity.
-case class DocumentAction(contributor: User, initTags: Array[ActionTag]) extends Action {
+case class DocumentAction(contributor: Member, initTags: Array[ActionTag]) extends Action {
   val tags = initTags
 }
 
 // CommentAction is contributed by expect for Activity contributor.
 // It is a Action to mention to other Action.
-case class CommentAction(contributor: User, initTags: Array[ActionTag]) extends Action {
+case class CommentAction(contributor: Member, initTags: Array[ActionTag]) extends Action {
   val tags = ActionTag.commentTag +: initTags
 }
 
 // QuestionAction is contributed by expect for Activity contributor.
 // It is a Action to question to other Action.
-case class QuestionAction(contributor: User, initTags: Array[ActionTag]) extends Action {
+case class QuestionAction(contributor: Member, initTags: Array[ActionTag]) extends Action {
   val tags = ActionTag.questionTag +: initTags
 }
 
