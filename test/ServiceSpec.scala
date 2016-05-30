@@ -7,11 +7,13 @@ class ServiceSpec extends FlatSpec with Matchers {
 
   val memberModel: Member = Member("model_id", "model_name", emailModel)
 
-  val actionTagModel_test: ActionTag = AttributeTag("test")
+  val actionTagModel_test: ActionTag = AttributeTag("test tag")
 
-  val rootActionModel: RootAction = RootAction(memberModel, Array())
+  val bodyModel_test: String = "test body"
 
-  val documentActionModel: DocumentAction = DocumentAction(memberModel, Array(actionTagModel_test))
+  val rootActionModel: RootAction = RootAction(memberModel, Array(), bodyModel_test + ": root")
+
+  val documentActionModel: DocumentAction = DocumentAction(memberModel, Array(actionTagModel_test), bodyModel_test + ": document")
 
   val activityModel: Activity = Activity(Array(rootActionModel))
 
