@@ -15,10 +15,14 @@ case class DocumentAction(contributor: User, initTags: Array[ActionTag]) extends
   val tags = initTags
 }
 
+// CommentAction is contributed by expect for Activity contributor.
+// It is a Action to mention to other Action.
 case class CommentAction(contributor: User, initTags: Array[ActionTag]) extends Action {
   val tags = ActionTag.commentTag +: initTags
 }
 
+// QuestionAction is contributed by expect for Activity contributor.
+// It is a Action to question to other Action.
 case class QuestionAction(contributor: User, initTags: Array[ActionTag]) extends Action {
   val tags = ActionTag.questionTag +: initTags
 }
