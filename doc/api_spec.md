@@ -14,6 +14,7 @@
 #### Activity
 
 All details of Activity are supplied by only root Action that is a head of the Activity.
+An activity ID is its root action ID.
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
@@ -34,7 +35,8 @@ User also be called with "contributor" or "member".
 |:----------------|:-------|:-------------------------------
 |group_id         |string  |A group ID that the group has.
 |group_name       |string  |A group name that the group has.
-|member_ids       |string[]|All IDs of members that have been joined to the group.
+|owner_id         |string  |A user ID of the group owner.
+|member_ids       |string[]|All user IDs of members that have been joined to the group.
 |activity_ids     |string[]|All IDs of activities that have been created from a member of the group. 
 
 #### Error Status
