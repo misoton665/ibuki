@@ -19,6 +19,16 @@ All details of Activity are supplied by only root Action that is a head of the A
 |:----------------|:-------|:-------------------------------
 |root_action      |Action  |A root Action of the Activity.
 
+#### User
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
+#### Group
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
 ## API
 
 #### /createActivity
@@ -28,6 +38,11 @@ All details of Activity are supplied by only root Action that is a head of the A
 |contributor_id   |string  |A contributor ID of a new Activity.
 |tags             |string[]|Tags of a new Activity.
 
+Result JSON
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
 #### /createAction
 
 Create a new Action to an Activity.
@@ -36,6 +51,47 @@ Create a new Action to an Activity.
 |:----------------|:-------|:-------------------------------
 |activity_id      |string  |An Actvity ID that a new Action will be send to.
 |action           |Action  |A new Action.
+
+Result JSON
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
+#### /getActivity
+
+Request parameters
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
+Result JSON
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
+#### /getAction
+
+Request parameters
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
+Result JSON
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
+#### /getUser
+
+Request parameters
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+
+Result JSON
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
 
 ## Fixed Parameter
 
