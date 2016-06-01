@@ -31,7 +31,7 @@ All details of Activity are supplied by only root Action that is a head of the A
 
 ## API
 
-#### /createActivity
+#### POST /createActivity
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
@@ -43,7 +43,7 @@ Result JSON
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
 
-#### /createAction
+#### POST /createAction
 
 Create a new Action to an Activity.
 
@@ -57,7 +57,7 @@ Result JSON
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
 
-#### /getActivity
+#### GET /activity
 
 Request parameters
 
@@ -69,7 +69,7 @@ Result JSON
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
 
-#### /getAction
+#### GET /action
 
 Request parameters
 
@@ -81,7 +81,7 @@ Result JSON
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
 
-#### /getUser
+#### GET /user
 
 Request parameters
 
