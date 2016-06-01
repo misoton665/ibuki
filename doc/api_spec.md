@@ -21,17 +21,36 @@ All details of Activity are supplied by only root Action that is a head of the A
 
 #### User
 
+User also be called with "contributor" or "member".
+
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|user_id          |string  |An user ID that the user has.
+|user_name        |string  |An user name that the user has.
 
 #### Group
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|group_id         |string  |A group ID that the group has.
+|group_name       |string  |A group name that the group has.
+|member_ids       |string[]|All IDs of members that have been joined to the group.
+|activity_ids     |string[]|All IDs of activities that have been created from a member of the group. 
+
+#### Error Status
+
+If you requested with invalid API or invalid parameteres, we will return the error status object (JSON).
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+|error_id         |integer |A error status ID.
+|error_message    |string  |A description of error details.
 
 ## API
 
 #### POST /createActivity
+
+Request parameters
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
@@ -42,10 +61,13 @@ Result JSON
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|activity         |Activity|A created Activity.
 
 #### POST /createAction
 
 Create a new Action to an Activity.
+
+Request parameters
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
@@ -56,6 +78,7 @@ Result JSON
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|action           |Action  |A created Action.
 
 #### GET /activity
 
@@ -63,11 +86,15 @@ Request parameters
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|actibity_id      |string  |
+|contributor_id   |string  |
+|tags             |string[]|
 
 Result JSON
 
-|parameter        |type    |detail
-|:----------------|:-------|:-------------------------------
+|parameter        |type      |detail
+|:----------------|:---------|:-------------------------------
+|activities       |Activity[]|
 
 #### GET /action
 
@@ -75,11 +102,17 @@ Request parameters
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|actibity_id      |string  |
+|action_id        |string  |
+|contributor_id   |string  |
+|tags             |string[]|
+|root_only        |boolean |
 
 Result JSON
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|activities       |Action[]|
 
 #### GET /user
 
@@ -87,11 +120,27 @@ Request parameters
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|user_id          |string  |
 
 Result JSON
 
 |parameter        |type    |detail
 |:----------------|:-------|:-------------------------------
+|user             |User    |
+
+#### GET /group
+
+Request parameters
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+|group_id         |string  |
+
+Result JSON
+
+|parameter        |type    |detail
+|:----------------|:-------|:-------------------------------
+|group            |Group   |
 
 ## Fixed Parameter
 
