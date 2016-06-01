@@ -18,12 +18,6 @@ case class Member(id: String, name: String, email: Email, isOwner: Boolean = fal
   def toOwner: Member = Member(id, name, email, isOwner = true)
 }
 
-object Member {
-  def apply(id: String, name: String, email: Email): Member = {
-    new Member(id, name, email)
-  }
-}
-
 case class Group(id: String, name: String, members: Array[Member], activities: Array[Activity]) {
   val owner: Option[Member] = members.filter(_.isOwner) match {
     case Array(x) => Some(x)
