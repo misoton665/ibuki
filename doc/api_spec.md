@@ -50,7 +50,7 @@ If you requested with invalid API or invalid parameteres, we will return the err
 
 ## API
 
-#### POST /createActivity
+#### POST /create/activity
 
 Request parameters
 
@@ -65,7 +65,7 @@ Result JSON
 |:----------------|:-------|:-------------------------------
 |activity         |Activity|A created Activity.
 
-#### POST /createAction
+#### POST /create/action
 
 Create a new Action to an Activity.
 
@@ -82,7 +82,7 @@ Result JSON
 |:----------------|:-------|:-------------------------------
 |action           |Action  |A created Action.
 
-#### GET /activity
+#### GET /search/activity
 
 Request parameters
 
@@ -98,7 +98,7 @@ Result JSON
 |:----------------|:---------|:-------------------------------
 |activities       |Activity[]|
 
-#### GET /action
+#### GET /search/action
 
 Request parameters
 
@@ -116,7 +116,7 @@ Result JSON
 |:----------------|:-------|:-------------------------------
 |activities       |Action[]|
 
-#### GET /user
+#### GET /search/user
 
 Request parameters
 
@@ -130,7 +130,7 @@ Result JSON
 |:----------------|:-------|:-------------------------------
 |user             |User    |
 
-#### GET /group
+#### GET /search/group
 
 Request parameters
 
