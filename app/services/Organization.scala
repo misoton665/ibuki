@@ -1,7 +1,7 @@
 package services
 
 import play.api.libs.json.{JsObject, Json}
-import services.Activity.Activity
+import services.Contribution.Activity
 import services.ApplicationObject.{JsonReadable, Jsonable}
 
 object Organization {
@@ -19,7 +19,7 @@ object Organization {
       val parsedValue = List("user_id", "user_name", "email").map((key) => (json \ key).asOpt[String])
 
       parsedValue match {
-        case List(Some(pid), Some(pname), Some(pemail)) => Some(new User(pid, pname, Email(pemail)))
+        case List(Some(id), Some(name), Some(email)) => Some(new User(id, name, Email(email)))
         case _ => None
       }
     }
