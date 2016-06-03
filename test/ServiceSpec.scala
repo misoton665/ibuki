@@ -1,7 +1,7 @@
 import org.scalatest.{FlatSpec, Matchers}
 import services.ActionTag.ActionTag
 import services.Activity.{Activity, DocumentAction, RootAction}
-import services.User.{Email, User}
+import services.Organization.{Email, User}
 
 class ServiceSpec extends FlatSpec with Matchers {
 

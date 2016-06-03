@@ -1,7 +1,7 @@
 package services
 
 import services.ActionTag.ActionTag
-import services.User.User
+import services.Organization.User
 
 object Activity {
 
