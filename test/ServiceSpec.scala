@@ -1,4 +1,5 @@
 import org.scalatest.{FlatSpec, Matchers}
+import play.api.libs.json.Json
 import services.ActionTag.ActionTag
 import services.Contribution.{Action, Activity, DocumentAction, RootAction}
 import services.Organization.{Email, User}
@@ -36,12 +37,12 @@ class ServiceSpec extends FlatSpec with Matchers {
     User.readJson(jsonString).isDefined should be(true)
   }
 
-  "A Action JSON" should "be read valid Action" in {
+  "An Action JSON" should "be read valid Action" in {
     val jsonString =
       """
         |{
         |  "contributor_id": "test",
-        |  "actionType": "document",
+        |  "action_type": "document",
         |  "tags": ["tag1", "tag2"],
         |  "body": "This is a test."
         |}
@@ -55,6 +56,32 @@ class ServiceSpec extends FlatSpec with Matchers {
     }
 
     email should be("test@test.com")
+
+    Json.parse(jsonString).asOpt[Action].isDefined should be(true)
+  }
+
+  "An Activity JSON" should "be read valid Activity" in {
+    val jsonString =
+      """
+        |{
+        |  "actions": [
+        |  {
+        |    "contributor_id": "test",
+        |    "action_type": "root",
+        |    "tags": ["root", "tag1", "tag2"],
+        |    "body": "This is a test."
+        |  },
+        |  {
+        |    "contributor_id": "test",
+        |    "action_type": "document",
+        |    "tags": ["tag1", "tag2"],
+        |    "body": "This is a test."
+        |  }
+        |  ]
+        |}
+      """.stripMargin
+
+    Activity.readJson(jsonString).isDefined should be(true)
   }
 
 }
