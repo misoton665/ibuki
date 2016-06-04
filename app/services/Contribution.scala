@@ -80,6 +80,7 @@ object Contribution {
 
       (parsedValue, parsedTags) match {
         case (List(Some(contributor_id_), Some(actionType_), Some(body_)), Some(tags_)) => generateAction(contributor_id_, actionType_, tags_, body_)
+        case _ => JsError()
       }
     }
   }
