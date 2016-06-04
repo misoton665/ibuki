@@ -27,36 +27,11 @@ object Contribution {
     )
   }
 
-  case object Action extends JsonReadable[Action] {
+  case object Action {
     val keyContributorId = "contributor_id"
     val keyActionType = "action_type"
     val keyTags = "tags"
     val keyBody = "body"
-
-    override def readJson(jsonString: String): Option[Action] = {
-      val json = Json.parse(jsonString)
-      val parsedValue = List(keyContributorId, keyActionType, keyBody).map((key) => (json \ key).asOpt[String])
-      val parsedTags = (json \ keyTags).asOpt[Array[String]]
-
-      def generateAction(contributorId: String, actionType: String, tags: Array[String], body: String): Option[Action] = {
-        val user = ApplicationDB.searchUserById(contributorId)
-        val actionTags = tags.map(ActionTag.tag)
-
-        actionType match {
-          case RootActionType.typeName => Some(RootAction(user, actionTags, body))
-          case DocumentActionType.typeName => Some(DocumentAction(user, actionTags, body))
-          case CommentActionType.typeName => Some(CommentAction(user, actionTags, body))
-          case QuestionActionType.typeName => Some(QuestionAction(user, actionTags, body))
-          case _ => None
-        }
-      }
-
-      (parsedValue, parsedTags) match {
-        case (List(Some(contributor_id), Some(actionType), Some(body)), Some(tags)) => generateAction(contributor_id, actionType, tags, body)
-        case _ => None
-      }
-    }
-
   }
 
   implicit val actionReads = new Reads[Action] {
