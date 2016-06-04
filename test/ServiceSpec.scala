@@ -34,7 +34,7 @@ class ServiceSpec extends FlatSpec with Matchers {
         |}
       """.stripMargin
 
-    User.readJson(jsonString).isDefined should be(true)
+    Json.parse(jsonString).asOpt[User].isDefined should be(true)
   }
 
   "An Action JSON" should "be read valid Action" in {
@@ -47,15 +47,6 @@ class ServiceSpec extends FlatSpec with Matchers {
         |  "body": "This is a test."
         |}
       """.stripMargin
-
-    Action.readJson(jsonString).isDefined should be(true)
-
-    val email = Action.readJson(jsonString) match {
-      case Some(action) => action.contributor.email.address
-      case None => "invalid action"
-    }
-
-    email should be("test@test.com")
 
     Json.parse(jsonString).asOpt[Action].isDefined should be(true)
   }

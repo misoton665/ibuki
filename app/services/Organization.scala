@@ -1,8 +1,8 @@
 package services
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json._
 import services.Contribution.Activity
-import services.ApplicationObject.{JsonReadable, Jsonable}
+import services.ApplicationObject.Jsonable
 
 object Organization {
   case class User(id: String, name: String, email: Email, isOwner: Boolean = false) extends Jsonable {
@@ -13,18 +13,21 @@ object Organization {
     )
   }
 
-  case object User extends JsonReadable[User] {
+  case object User {
     val keyUserId = "user_id"
     val keyUserName = "user_name"
     val keyEmail = "email"
+  }
 
-    def readJson(jsonString: String): Option[User] =  {
-      val json = Json.parse(jsonString)
-      val parsedValue = List(keyUserId, keyUserName, keyEmail).map((key) => (json \ key).asOpt[String])
+  implicit val userReads = new Reads[User] {
+    def reads(js: JsValue): JsResult[User] = {
+      val json = js
+
+      val parsedValue = List(User.keyUserId, User.keyUserName, User.keyEmail).map((key) => (json \ key).asOpt[String])
 
       parsedValue match {
-        case List(Some(id), Some(name), Some(email)) => Some(new User(id, name, Email(email)))
-        case _ => None
+        case List(Some(id), Some(name), Some(email)) => JsSuccess(new User(id, name, Email(email)))
+        case _ => JsError()
       }
     }
   }
