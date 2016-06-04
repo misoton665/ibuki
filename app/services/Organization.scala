@@ -7,16 +7,20 @@ import services.ApplicationObject.{JsonReadable, Jsonable}
 object Organization {
   case class User(id: String, name: String, email: Email, isOwner: Boolean = false) extends Jsonable {
     override def toJson: JsObject = Json.obj(
-      "user_id" -> id,
-      "user_name" -> name,
-      "email" -> email.address
+      User.keyUserId -> id,
+      User.keyUserName -> name,
+      User.keyEmail -> email.address
     )
   }
 
   case object User extends JsonReadable[User] {
+    val keyUserId = "user_id"
+    val keyUserName = "user_name"
+    val keyEmail = "email"
+
     def readJson(jsonString: String): Option[User] =  {
       val json = Json.parse(jsonString)
-      val parsedValue = List("user_id", "user_name", "email").map((key) => (json \ key).asOpt[String])
+      val parsedValue = List(keyUserId, keyUserName, keyEmail).map((key) => (json \ key).asOpt[String])
 
       parsedValue match {
         case List(Some(id), Some(name), Some(email)) => Some(new User(id, name, Email(email)))
