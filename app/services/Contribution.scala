@@ -62,8 +62,8 @@ object Contribution {
   implicit val actionReads = new Reads[Action] {
     override def reads(js: JsValue): JsResult[Action] = {
       val json = js
-      val parsedValue = List(Action.keyContributorId, Action.keyActionType, Action.keyBody).map((key) => (json \ key).as[String])
-      val parsedTags = (json \ Action.keyTags).as[Array[String]]
+      val parsedValue = List(Action.keyContributorId, Action.keyActionType, Action.keyBody).map((key) => (json \ key).asOpt[String])
+      val parsedTags = (json \ Action.keyTags).asOpt[Array[String]]
 
       def generateAction(contributorId: String, actionType: String, tags: Array[String], body: String): JsResult[Action] = {
         val user = ApplicationDB.searchUserById(contributorId)
@@ -79,7 +79,7 @@ object Contribution {
       }
 
       (parsedValue, parsedTags) match {
-        case (List(contributor_id_, actionType_, body_), tags_) => generateAction(contributor_id_, actionType_, tags_, body_)
+        case (List(Some(contributor_id_), Some(actionType_), Some(body_)), Some(tags_)) => generateAction(contributor_id_, actionType_, tags_, body_)
       }
     }
   }
