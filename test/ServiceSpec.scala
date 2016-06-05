@@ -18,10 +18,10 @@ class ServiceSpec extends FlatSpec with Matchers {
 
   val documentActionModel: DocumentAction = DocumentAction(memberModel, Array(actionTagModel_test), bodyModel_test + ": document")
 
-  val activityModel: Activity = Activity(Array(rootActionModel))
+  val activityModel: Activity = Activity(rootActionModel)
 
   "A head of Activity" should "be RootAction" in {
-    activityModel.rootAction should be(Some(rootActionModel))
+    activityModel.rootAction should be(rootActionModel)
   }
 
   "A User JSON" should "be read valid User" in {
@@ -55,24 +55,17 @@ class ServiceSpec extends FlatSpec with Matchers {
     val jsonString =
       """
         |{
-        |  "actions": [
+        |  "root_action":
         |  {
         |    "contributor_id": "test",
         |    "action_type": "root",
         |    "tags": ["root", "tag1", "tag2"],
         |    "body": "This is a test."
-        |  },
-        |  {
-        |    "contributor_id": "test",
-        |    "action_type": "document",
-        |    "tags": ["tag1", "tag2"],
-        |    "body": "This is a test."
         |  }
-        |  ]
         |}
       """.stripMargin
 
-    Activity.readJson(jsonString).isDefined should be(true)
+    Json.parse(jsonString).asOpt[Activity].isDefined should be(true)
   }
 
 }

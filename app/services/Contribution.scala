@@ -2,7 +2,7 @@ package services
 
 import play.api.libs.json._
 import services.ActionTag.ActionTag
-import services.ApplicationObject.{JsonReadable, Jsonable}
+import services.ApplicationObject.Jsonable
 import services.Organization.User
 
 object Contribution {
@@ -54,7 +54,7 @@ object Contribution {
       }
 
       (parsedValue, parsedTags) match {
-        case (List(Some(contributor_id_), Some(actionType_), Some(body_)), Some(tags_)) => generateAction(contributor_id_, actionType_, tags_, body_)
+        case (List(Some(contributorId_), Some(actionType_), Some(body_)), Some(tags_)) => generateAction(contributorId_, actionType_, tags_, body_)
         case _ => JsError()
       }
     }
@@ -89,33 +89,29 @@ object Contribution {
 
   // Explanation of Activity is included in its root action: head of actions that the activity has.
   // If head of actions is not RootAction, its Activity is invalid.
-  case class Activity(actions: Array[Action]) extends Jsonable {
-    val rootAction: Option[Action] = actions match {
-      case Array(h@RootAction(_, _, _), _*) => Some(h)
-      case _ => None
-    }
-
-    val isInvalidActivity: Boolean = rootAction.isEmpty
+  case class Activity(rootAction: Action) extends Jsonable {
+    require(rootAction.isInstanceOf[RootAction])
 
     override def toJson: JsObject = {
-      val rootActionJson = this.rootAction match {
-        case Some(action) => action.toJson
-        case None => JsNull
-      }
+      val rootActionJson = rootAction.toJson
 
       Json.obj(
-        "root_action" -> rootActionJson
+        Activity.keyRootAction -> rootActionJson
       )
     }
   }
 
-  case object Activity extends JsonReadable[Activity]{
-    override def readJson(jsonString: String): Option[Activity] = {
-      val actionsJson = (Json.parse(jsonString) \ "actions").asOpt[Array[Action]]
+  case object Activity {
+    val keyRootAction = "root_action"
+  }
 
-      actionsJson match {
-        case Some(actions) => Some(Activity(actions))
-        case None => None
+  implicit val activityReads = new Reads[Activity] {
+    def reads(js: JsValue): JsResult[Activity] = {
+      val rootActionJson = (js \ Activity.keyRootAction).asOpt[Action]
+
+      rootActionJson match {
+        case Some(rootAction) => JsSuccess(Activity(rootAction))
+        case None => JsError()
       }
     }
   }
