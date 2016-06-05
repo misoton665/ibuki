@@ -8,15 +8,15 @@ class ServiceSpec extends FlatSpec with Matchers {
 
   val emailModel: Email = Email("misoton998@ibuki.com")
 
-  val memberModel: User = User("model_id", "model_name", emailModel)
+  val userModel: User = User("model_id", "model_name", emailModel)
 
   val actionTagModel_test: AttributeTag = AttributeTag("test tag")
 
   val bodyModel_test: String = "test body"
 
-  val rootActionModel: RootAction = RootAction(memberModel, Array(), bodyModel_test + ": root")
+  val rootActionModel: RootAction = RootAction(userModel, Array(), bodyModel_test + ": root")
 
-  val documentActionModel: DocumentAction = DocumentAction(memberModel, Array(actionTagModel_test), bodyModel_test + ": document")
+  val documentActionModel: DocumentAction = DocumentAction(userModel, Array(actionTagModel_test), bodyModel_test + ": document")
 
   val activityModel: Activity = Activity(rootActionModel)
 
@@ -37,7 +37,13 @@ class ServiceSpec extends FlatSpec with Matchers {
     Json.parse(jsonString).asOpt[User].isDefined should be(true)
   }
 
-  "An Action JSON" should "be read valid Action" in {
+  "An User" should "be corresponding to its JsValue" in {
+    val user = Json.toJson(userModel)
+
+    user.asOpt[User].isDefined should be(true)
+  }
+
+  "Action" should "be read valid Action" in {
     val jsonString =
       """
         |{
@@ -49,6 +55,12 @@ class ServiceSpec extends FlatSpec with Matchers {
       """.stripMargin
 
     Json.parse(jsonString).asOpt[Action].isDefined should be(true)
+  }
+
+  "An Action" should "be corresponding to its JsValue" in {
+    val action = Json.toJson(documentActionModel)
+
+    action.asOpt[Action].isDefined should be(true)
   }
 
   "An Activity JSON" should "be read valid Activity" in {
@@ -66,6 +78,12 @@ class ServiceSpec extends FlatSpec with Matchers {
       """.stripMargin
 
     Json.parse(jsonString).asOpt[Activity].isDefined should be(true)
+  }
+
+  "An Activity" should "be corresponding to its JsValue" in {
+    val activity = Json.toJson(activityModel)
+
+    activity.asOpt[Activity].isDefined should be(true)
   }
 
 }

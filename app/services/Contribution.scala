@@ -2,7 +2,6 @@ package services
 
 import play.api.libs.json._
 import services.ActionTag.AttributeTag
-import services.ApplicationObject.Jsonable
 import services.Organization.User
 
 object Contribution {
@@ -13,18 +12,11 @@ object Contribution {
   case object CommentActionType extends ActionType("comment")
   case object QuestionActionType extends ActionType("question")
 
-  sealed trait Action extends Jsonable {
+  sealed trait Action {
     val contributor: User
     val actionType: ActionType
     val tags: Array[AttributeTag]
     val body: String
-
-    override def toJson: JsObject = Json.obj(
-      Action.keyContributorId -> contributor.id,
-      Action.keyActionType -> actionType.typeName,
-      Action.keyTags -> Json.arr(tags.map(_.name)),
-      Action.keyBody -> body
-    )
   }
 
   case object Action {
@@ -60,6 +52,17 @@ object Contribution {
     }
   }
 
+  implicit val actionWrites = new Writes[Action] {
+    override def writes(action: Action): JsValue = {
+      Json.obj(
+        Action.keyContributorId -> action.contributor.id,
+        Action.keyActionType -> action.actionType.typeName,
+        Action.keyTags -> action.tags.map(_.name),
+        Action.keyBody -> action.body
+      )
+    }
+  }
+
 
   // RootAction explain to Activity that is included it.
   case class RootAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
@@ -89,16 +92,8 @@ object Contribution {
 
   // Explanation of Activity is included in its root action: head of actions that the activity has.
   // If head of actions is not RootAction, its Activity is invalid.
-  case class Activity(rootAction: Action) extends Jsonable {
+  case class Activity(rootAction: Action) {
     require(rootAction.isInstanceOf[RootAction])
-
-    override def toJson: JsObject = {
-      val rootActionJson = rootAction.toJson
-
-      Json.obj(
-        Activity.keyRootAction -> rootActionJson
-      )
-    }
   }
 
   case object Activity {
@@ -106,13 +101,23 @@ object Contribution {
   }
 
   implicit val activityReads = new Reads[Activity] {
-    def reads(js: JsValue): JsResult[Activity] = {
+    override def reads(js: JsValue): JsResult[Activity] = {
       val rootActionJson = (js \ Activity.keyRootAction).asOpt[Action]
 
       rootActionJson match {
         case Some(rootAction) => JsSuccess(Activity(rootAction))
         case None => JsError()
       }
+    }
+  }
+
+  implicit val activityWrites = new Writes[Activity] {
+    override def writes(activity: Activity): JsValue = {
+      val rootActionJson = Json.toJson(activity.rootAction)
+
+      Json.obj(
+        Activity.keyRootAction -> rootActionJson
+      )
     }
   }
 }

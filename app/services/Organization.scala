@@ -2,16 +2,9 @@ package services
 
 import play.api.libs.json._
 import services.Contribution.Activity
-import services.ApplicationObject.Jsonable
 
 object Organization {
-  case class User(id: String, name: String, email: Email, isOwner: Boolean = false) extends Jsonable {
-    override def toJson: JsObject = Json.obj(
-      User.keyUserId -> id,
-      User.keyUserName -> name,
-      User.keyEmail -> email.address
-    )
-  }
+  case class User(id: String, name: String, email: Email, isOwner: Boolean = false)
 
   case object User {
     val keyUserId = "user_id"
@@ -29,6 +22,16 @@ object Organization {
         case List(Some(id), Some(name), Some(email)) => JsSuccess(new User(id, name, Email(email)))
         case _ => JsError()
       }
+    }
+  }
+
+  implicit val userWrites = new Writes[User] {
+    def writes(user: User): JsValue = {
+      Json.obj(
+        User.keyUserId -> user.id,
+        User.keyUserName -> user.name,
+        User.keyEmail -> user.email.address
+      )
     }
   }
 
