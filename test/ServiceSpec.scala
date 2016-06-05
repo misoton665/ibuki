@@ -1,6 +1,6 @@
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
-import services.ActionTag.ActionTag
+import services.ActionTag.AttributeTag
 import services.Contribution.{Action, Activity, DocumentAction, RootAction}
 import services.Organization.{Email, User}
 
@@ -10,7 +10,7 @@ class ServiceSpec extends FlatSpec with Matchers {
 
   val memberModel: User = User("model_id", "model_name", emailModel)
 
-  val actionTagModel_test: ActionTag = ActionTag("test tag")
+  val actionTagModel_test: AttributeTag = AttributeTag("test tag")
 
   val bodyModel_test: String = "test body"
 

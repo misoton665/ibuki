@@ -1,10 +1,10 @@
 package services
 
 object ActionTag {
-  def tag = ActionTag
-  val rootTag = ActionTag("root")
-  val commentTag = ActionTag("comment")
-  val questionTag = ActionTag("question")
+  def tag = AttributeTag
+  val rootTag = AttributeTag("root")
+  val commentTag = AttributeTag("comment")
+  val questionTag = AttributeTag("question")
 
-  case class ActionTag(name: String)
+  case class AttributeTag(name: String)
 }

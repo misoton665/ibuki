@@ -1,7 +1,7 @@
 package services
 
 import play.api.libs.json._
-import services.ActionTag.ActionTag
+import services.ActionTag.AttributeTag
 import services.ApplicationObject.Jsonable
 import services.Organization.User
 
@@ -16,7 +16,7 @@ object Contribution {
   sealed trait Action extends Jsonable {
     val contributor: User
     val actionType: ActionType
-    val tags: Array[ActionTag]
+    val tags: Array[AttributeTag]
     val body: String
 
     override def toJson: JsObject = Json.obj(
@@ -62,27 +62,27 @@ object Contribution {
 
 
   // RootAction explain to Activity that is included it.
-  case class RootAction(contributor: User, initTags: Array[ActionTag], body: String) extends Action {
+  case class RootAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
     val tags = ActionTag.rootTag +: initTags
     val actionType = RootActionType
   }
 
   // DocumentAction is main content of Activity.
-  case class DocumentAction(contributor: User, initTags: Array[ActionTag], body: String) extends Action {
+  case class DocumentAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
     val tags = initTags
     val actionType = DocumentActionType
   }
 
   // CommentAction is contributed by expect for Activity contributor.
   // It is a Action to mention to other Action.
-  case class CommentAction(contributor: User, initTags: Array[ActionTag], body: String) extends Action {
+  case class CommentAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
     val tags = ActionTag.commentTag +: initTags
     val actionType = CommentActionType
   }
 
   // QuestionAction is contributed by expect for Activity contributor.
   // It is a Action to question to other Action.
-  case class QuestionAction(contributor: User, initTags: Array[ActionTag], body: String) extends Action {
+  case class QuestionAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
     val tags = ActionTag.questionTag +: initTags
     val actionType = QuestionActionType
   }
