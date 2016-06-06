@@ -10,6 +10,7 @@
 |action_type      |string  |A type of the Action (descripted by Fixed Parameter).
 |tags             |string[]|Tags of the Action.
 |body             |string  |A body of the Action.
+|date             |Date    |A date that the Action was contributed on. (as yyyymmdd)
 
 #### Activity
 
@@ -28,6 +29,8 @@ User also be called with "contributor" or "member".
 |:----------------|:-------|:-------------------------------
 |user_id          |string  |An user ID that the user has.
 |user_name        |string  |An user name that the user has.
+|email            |string  |An email of the user.
+|date             |Date    |A date that the user was registerd on. (as yyyymmdd)
 
 #### Group
 
@@ -38,6 +41,7 @@ User also be called with "contributor" or "member".
 |owner_id         |string  |A user ID of the group owner.
 |member_ids       |string[]|All user IDs of members that have been joined to the group.
 |activity_ids     |string[]|All IDs of activities that have been created from a member of the group. 
+|date             |Date    |A date that the group was created on. (as yyyymmdd)
 
 #### Error Status
 
