@@ -17,6 +17,7 @@ object Contribution {
     val actionType: ActionType
     val tags: Array[AttributeTag]
     val body: String
+    val date: Option[String]
   }
 
   case object Action {
@@ -24,6 +25,20 @@ object Contribution {
     val keyActionType = "action_type"
     val keyTags = "tags"
     val keyBody = "body"
+
+    def apply(contributor: User, tags: Array[AttributeTag], body: String, date: Option[String]): Action = {
+
+      tags match {
+        case Array(ActionTag.rootTag, _*) => RootAction(contributor, tags, body, date)
+        case Array(ActionTag.commentTag, _*) => CommentAction(contributor, tags, body, date)
+        case Array(ActionTag.questionTag, _*) => QuestionAction(contributor, tags, body, date)
+        case _ => DocumentAction(contributor, tags, body, date)
+      }
+    }
+
+    def unapply(action: Action): Option[(User, Array[AttributeTag], String, Option[String])] = {
+      Some((action.contributor, action.tags, action.body, action.date))
+    }
   }
 
   implicit val actionReads = new Reads[Action] {
@@ -32,21 +47,15 @@ object Contribution {
       val parsedValue = List(Action.keyContributorId, Action.keyActionType, Action.keyBody).map((key) => (json \ key).asOpt[String])
       val parsedTags = (json \ Action.keyTags).asOpt[Array[String]]
 
-      def generateAction(contributorId: String, actionType: String, tags: Array[String], body: String): JsResult[Action] = {
+      def generateAction(contributorId: String, actionType: String, tags: Array[String], body: String): Action = {
         val user = ApplicationDB.searchUserById(contributorId)
         val actionTags = tags.map(ActionTag.tag)
 
-        actionType match {
-          case RootActionType.typeName => JsSuccess(RootAction(user, actionTags, body))
-          case DocumentActionType.typeName => JsSuccess(DocumentAction(user, actionTags, body))
-          case CommentActionType.typeName => JsSuccess(CommentAction(user, actionTags, body))
-          case QuestionActionType.typeName => JsSuccess(QuestionAction(user, actionTags, body))
-          case _ => JsError()
-        }
+        Action(user, actionTags, body, None)
       }
 
       (parsedValue, parsedTags) match {
-        case (List(Some(contributorId_), Some(actionType_), Some(body_)), Some(tags_)) => generateAction(contributorId_, actionType_, tags_, body_)
+        case (List(Some(contributorId_), Some(actionType_), Some(body_)), Some(tags_)) => JsSuccess(generateAction(contributorId_, actionType_, tags_, body_))
         case _ => JsError()
       }
     }
@@ -65,27 +74,27 @@ object Contribution {
 
 
   // RootAction explain to Activity that is included it.
-  case class RootAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
+  case class RootAction(contributor: User, initTags: Array[AttributeTag], body: String, date: Option[String]) extends Action {
     val tags = ActionTag.rootTag +: initTags
     val actionType = RootActionType
   }
 
   // DocumentAction is main content of Activity.
-  case class DocumentAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
+  case class DocumentAction(contributor: User, initTags: Array[AttributeTag], body: String, date: Option[String]) extends Action {
     val tags = initTags
     val actionType = DocumentActionType
   }
 
   // CommentAction is contributed by expect for Activity contributor.
   // It is a Action to mention to other Action.
-  case class CommentAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
+  case class CommentAction(contributor: User, initTags: Array[AttributeTag], body: String, date: Option[String]) extends Action {
     val tags = ActionTag.commentTag +: initTags
     val actionType = CommentActionType
   }
 
   // QuestionAction is contributed by expect for Activity contributor.
   // It is a Action to question to other Action.
-  case class QuestionAction(contributor: User, initTags: Array[AttributeTag], body: String) extends Action {
+  case class QuestionAction(contributor: User, initTags: Array[AttributeTag], body: String, date: Option[String]) extends Action {
     val tags = ActionTag.questionTag +: initTags
     val actionType = QuestionActionType
   }

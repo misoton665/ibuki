@@ -2,6 +2,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
 import services.ActionTag.AttributeTag
 import services.Contribution.{Action, Activity, DocumentAction, RootAction}
+import services.DateConverter
 import services.Organization.{Email, User}
 
 class ServiceSpec extends FlatSpec with Matchers {
@@ -14,9 +15,11 @@ class ServiceSpec extends FlatSpec with Matchers {
 
   val bodyModel_test: String = "test body"
 
-  val rootActionModel: RootAction = RootAction(userModel, Array(), bodyModel_test + ": root")
+  val date: String = DateConverter.generateNowDateString()
 
-  val documentActionModel: DocumentAction = DocumentAction(userModel, Array(actionTagModel_test), bodyModel_test + ": document")
+  val rootActionModel: RootAction = RootAction(userModel, Array(), bodyModel_test + ": root", Some(date))
+
+  val documentActionModel: DocumentAction = DocumentAction(userModel, Array(actionTagModel_test), bodyModel_test + ": document", Some(date))
 
   val activityModel: Activity = Activity(rootActionModel)
 
