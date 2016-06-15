@@ -4,7 +4,7 @@ import play.api.libs.json._
 import services.Contribution.Activity
 
 object Organization {
-  case class User(id: String, name: String, email: Email, isOwner: Boolean = false)
+  case class User(id: String, name: String, email: Email, date: Option[String], isOwner: Boolean = false)
 
   case object User {
     val keyUserId = "user_id"
@@ -19,7 +19,7 @@ object Organization {
       val parsedValue = List(User.keyUserId, User.keyUserName, User.keyEmail).map((key) => (json \ key).asOpt[String])
 
       parsedValue match {
-        case List(Some(id), Some(name), Some(email)) => JsSuccess(new User(id, name, Email(email)))
+        case List(Some(id), Some(name), Some(email)) => JsSuccess(new User(id, name, Email(email), None))
         case _ => JsError()
       }
     }

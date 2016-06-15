@@ -9,7 +9,7 @@ class ServiceSpec extends FlatSpec with Matchers {
 
   val emailModel: Email = Email("misoton998@ibuki.com")
 
-  val userModel: User = User("model_id", "model_name", emailModel)
+  val userModel: User = User("model_id", "model_name", emailModel, None)
 
   val actionTagModel_test: AttributeTag = AttributeTag("test tag")
 
