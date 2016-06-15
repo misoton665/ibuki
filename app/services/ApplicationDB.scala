@@ -1,11 +1,15 @@
 package services
 
 import services.Contribution.Action
+import services.ErrorMessageGenerator.ErrorMessage
 import services.Organization.{Email, User}
 
 object ApplicationDB {
+  sealed trait DBResult[A]
+  case class DBSuccess[A](result: A) extends DBResult[A]
+  case class DBError(errorMessage: ErrorMessage) extends DBResult
 
-  def createAction(action: Action): Option[Action] = {
+  def createAction(action: Action): DBResult[Action] = {
     val dateString = DateConverter.generateNowDateString()
 
     val actionWithDate = action match {
@@ -15,10 +19,10 @@ object ApplicationDB {
 
     // TODO: register into the DB
 
-    Some(actionWithDate)
+    DBSuccess(actionWithDate)
   }
 
   def searchUserById(userId: String): User = {
-    User(userId, userId + "_name", Email(userId + "@" + userId + ".com"))
+    User(userId, userId + "_name", Email(userId + "@" + userId + ".com"), None)
   }
 }
