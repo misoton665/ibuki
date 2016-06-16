@@ -27,7 +27,6 @@ object Contribution {
     val keyBody = "body"
 
     def apply(contributor: User, tags: Array[AttributeTag], body: String, date: Option[String]): Action = {
-
       tags match {
         case Array(ActionTag.rootTag, _*) => RootAction(contributor, tags, body, date)
         case Array(ActionTag.commentTag, _*) => CommentAction(contributor, tags, body, date)
@@ -72,10 +71,12 @@ object Contribution {
     }
   }
 
-
   // RootAction explain to Activity that is included it.
   case class RootAction(contributor: User, initTags: Array[AttributeTag], body: String, date: Option[String]) extends Action {
-    val tags = ActionTag.rootTag +: initTags
+    val tags = initTags match {
+      case Array(ActionTag.rootTag, _*) => initTags
+      case _ => ActionTag.rootTag +: initTags
+    }
     val actionType = RootActionType
   }
 
@@ -114,8 +115,8 @@ object Contribution {
       val rootActionJson = (js \ Activity.keyRootAction).asOpt[Action]
 
       rootActionJson match {
-        case Some(rootAction) => JsSuccess(Activity(rootAction))
-        case None => JsError()
+        case Some(rootAction @ RootAction(_, _, _, _)) => JsSuccess(Activity(rootAction))
+        case _ => JsError()
       }
     }
   }

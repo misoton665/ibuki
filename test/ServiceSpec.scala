@@ -1,5 +1,5 @@
 import org.scalatest.{FlatSpec, Matchers}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import services.ActionTag.AttributeTag
 import services.Contribution.{Action, Activity, DocumentAction, RootAction}
 import services.DateConverter
@@ -41,7 +41,7 @@ class ServiceSpec extends FlatSpec with Matchers {
   }
 
   "An User" should "be corresponding to its JsValue" in {
-    val user = Json.toJson(userModel)
+    val user: JsValue = Json.toJson(userModel)
 
     user.asOpt[User].isDefined should be(true)
   }

@@ -1,13 +1,22 @@
 package services
 
-import services.Contribution.Action
-import services.ErrorMessageGenerator.ErrorMessage
+import play.api.libs.json._
+import services.Contribution.{Action, Activity, RootAction}
+import services.ErrorMessage.ErrorMessage
 import services.Organization.{Email, User}
 
 object ApplicationDB {
-  sealed trait DBResult[A]
+  sealed trait DBResult[+A] {
+    def map[B](f: DBResult[A] => DBResult[B]): DBResult[B] = {
+      f(this)
+    }
+  }
+
   case class DBSuccess[A](result: A) extends DBResult[A]
-  case class DBError(errorMessage: ErrorMessage) extends DBResult
+
+  case class DBError(errorMessage: ErrorMessage = ErrorMessage.generateError(ErrorMessage.DB_ERROR)) extends DBResult[Nothing] {
+    def getValueAsJson: JsValue = errorMessage.json
+  }
 
   def createAction(action: Action): DBResult[Action] = {
     val dateString = DateConverter.generateNowDateString()
@@ -20,6 +29,13 @@ object ApplicationDB {
     // TODO: register into the DB
 
     DBSuccess(actionWithDate)
+  }
+
+  def createActivity(activity: Activity): DBResult[Activity] = {
+    createAction(activity.rootAction).map {
+      case DBSuccess(action @ RootAction(_, _, _, _)) => DBSuccess(Activity(action))
+      case err @ DBError(_) => err
+    }
   }
 
   def searchUserById(userId: String): User = {
