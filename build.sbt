@@ -23,19 +23,3 @@ resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
 routesGenerator := InjectedRoutesGenerator
 
-slick <<= slickCodeGenTask
-sourceGenerators in Compile <+= slickCodeGenTask
-
-lazy val slick = TaskKey[Seq[File]]("gen-tables")
-lazy val slickCodeGenTask = (sourceManaged, dependencyClasspath in Compile, runner in Compile, streams) map { (dir, cp, r, s) =>
-  println("start")
-  val outputDir = "/home/misoton/workspace/ibuki/app/"
-  val url = "jdbc:postgresql://127.0.0.1/ibuki"
-  val jdbcDriver = "org.postgresql.Driver"
-  val slickDriver = "slick.driver.PostgresDriver"
-  val pkg = "models"
-  toError(r.run("slick.codegen.SourceCodeGenerator", cp.files, Array(slickDriver, jdbcDriver, url, outputDir, pkg), s.log))
-  val fname = outputDir + "models/Tables.scala"
-  println("end")
-  Seq(file(fname))
-}
