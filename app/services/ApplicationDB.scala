@@ -1,11 +1,14 @@
 package services
 
+import play.api.Play
+import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import play.api.libs.json._
 import services.Contribution.{Action, Activity, RootAction}
 import services.ErrorMessage.ErrorMessage
 import services.Organization.{Email, User}
 
 object ApplicationDB {
+
   sealed trait DBResult[+A] {
     def map[B](f: DBResult[A] => DBResult[B]): DBResult[B] = {
       f(this)
