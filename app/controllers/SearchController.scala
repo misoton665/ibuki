@@ -3,17 +3,15 @@ package controllers
 import javax.inject.Inject
 
 import play.api.mvc.{Action, Controller}
+import services.ErrorMessage
 
 class SearchController @Inject() extends Controller {
-
-  private sealed trait ErrorType
-  private case object UrlError extends ErrorType
 
   def search(target: String) = Action {
 
     val result = target match {
       case "activity" => searchActivity()
-      case _ => generateErrorMessage(UrlError)
+      case _ => ErrorMessage.generateError(ErrorMessage.API_NOT_FOUND).json.toString()
     }
 
     Ok(result)
@@ -34,12 +32,4 @@ class SearchController @Inject() extends Controller {
   def searchGroup(): String = {
     "group"
   }
-
-  def generateErrorMessage(errorType: ErrorType): String = {
-    errorType match {
-      case UrlError => "url error"
-      case _        => "server error"
-    }
-  }
-
 }
