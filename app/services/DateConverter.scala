@@ -1,13 +1,15 @@
 package services
 
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.sql.Date
 
 object DateConverter {
   val dateFormat = new SimpleDateFormat("yyyyMMddHHmmss")
 
   def generateNowDateString(): String = {
-    val date = new Date()
+    val date = new Date(System.currentTimeMillis())
     dateFormat.format(date)
   }
+
+  val generateNowDate: Date = new Date(System.currentTimeMillis())
 }

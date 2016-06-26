@@ -24,7 +24,7 @@ resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 routesGenerator := InjectedRoutesGenerator
 
 slick <<= slickCodeGenTask
-sourceGenerators in Compile <+= slickCodeGenTask
+// sourceGenerators in Compile <+= slickCodeGenTask
 
 lazy val slick = TaskKey[Seq[File]]("gen-tables")
 lazy val slickCodeGenTask = (sourceManaged, dependencyClasspath in Compile, runner in Compile, streams) map { (dir, cp, r, s) =>

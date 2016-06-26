@@ -2,16 +2,18 @@ package controllers
 
 import javax.inject.Inject
 
-import play.api.libs.json.{JsResult, JsValue}
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.json.JsValue
 import play.api.mvc.{Action, BodyParsers, Controller}
-import services.ErrorMessage
+import services.ErrorMessage._
+import models.ActivityRepo
 
-class CreationController @Inject() extends Controller {
+class CreationController @Inject() (activityRepo: ActivityRepo) extends Controller {
 
-  def create(target: String) = Action(BodyParsers.parse.json) { request =>
+  def create(target: String) = Action.async(BodyParsers.parse.json) { request =>
     val jsonBody: JsValue = request.body
 
-    val result = (target, jsonBody) match {
+    val result: ApiResult[String] = (target, jsonBody) match {
       // /create/activity
       case ("activity", js) => createActivity(js)
 
@@ -19,10 +21,10 @@ class CreationController @Inject() extends Controller {
       case ("action", js)   => createAction(js)
 
       // otherwise it will be occurred error that an api not found.
-      case _ => ErrorMessage.generateError(ErrorMessage.API_NOT_FOUND).json.toString()
+      case _ => ApiError(generateError(API_NOT_FOUND))
     }
 
-    Ok(result)
+    result.getAsFuture.map(v => Ok(v))
   }
 
   /**
@@ -44,21 +46,28 @@ class CreationController @Inject() extends Controller {
     * @param json JSON string by request body
     * @return return JSON
     */
-  private def createActivity(json: JsValue): String = {
+  private def createActivity(json: JsValue): ApiResult[String] = {
     val parameterKeys = List("activity_name", "user_id", "group_id")
-    val parameters: List[JsResult[String]] = parameterKeys.map { key =>
-      (json \ key).validate[String]
+    val parameters: List[Option[String]] = parameterKeys.map { key =>
+      (json \ key).asOpt[String]
     }
-    val validJson: Boolean = !parameters.contains((res: JsResult[String]) => res.isError)
 
-    if (validJson) {
+    val isValidJson: Boolean = parameters.forall(_.isDefined)
 
+    if (isValidJson) {
+      parameters match {
+        case List(Some(activityName), Some(userId), Some(groupId)) =>
+          ApiSuccess(activityRepo.create(activityName, userId, groupId).map(_.toString))
+
+        case _ => ApiError(generateError(INVALID_JSON))
+      }
+    } else {
+      ApiError(generateError(INVALID_JSON))
     }
-    "activity"
   }
 
-  private def createAction(json: JsValue): String = {
-    "action"
+  private def createAction(json: JsValue): ApiResult[String] = {
+    ApiError(generateError(INVALID_JSON))
   }
 
 }
