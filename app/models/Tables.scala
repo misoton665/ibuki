@@ -14,7 +14,7 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = Array(Action.schema, ActionTag.schema, Activity.schema, GroupUser.schema, IbukiGroup.schema, IbukiUser.schema).reduceLeft(_ ++ _)
+  lazy val schema: profile.SchemaDescription = Array(Action.schema, ActionTag.schema, Activity.schema, GroupUser.schema, IbukiGroup.schema, IbukiUser.schema, UserSecret.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -209,4 +209,30 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table IbukiUser */
   lazy val IbukiUser = new TableQuery(tag => new IbukiUser(tag))
+
+  /** Entity class storing rows of table UserSecret
+   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
+   *  @param userId Database column user_id SqlType(text)
+   *  @param passwordHash Database column password_hash SqlType(text) */
+  case class UserSecretRow(id: Int, userId: String, passwordHash: String)
+  /** GetResult implicit for fetching UserSecretRow objects using plain SQL queries */
+  implicit def GetResultUserSecretRow(implicit e0: GR[Int], e1: GR[String]): GR[UserSecretRow] = GR{
+    prs => import prs._
+    UserSecretRow.tupled((<<[Int], <<[String], <<[String]))
+  }
+  /** Table description of table user_secret. Objects of this class serve as prototypes for rows in queries. */
+  class UserSecret(_tableTag: Tag) extends Table[UserSecretRow](_tableTag, "user_secret") {
+    def * = (id, userId, passwordHash) <> (UserSecretRow.tupled, UserSecretRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(userId), Rep.Some(passwordHash)).shaped.<>({r=>import r._; _1.map(_=> UserSecretRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
+    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column user_id SqlType(text) */
+    val userId: Rep[String] = column[String]("user_id")
+    /** Database column password_hash SqlType(text) */
+    val passwordHash: Rep[String] = column[String]("password_hash")
+  }
+  /** Collection-like TableQuery object for table UserSecret */
+  lazy val UserSecret = new TableQuery(tag => new UserSecret(tag))
 }
