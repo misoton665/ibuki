@@ -11,7 +11,7 @@ class SearchController @Inject() extends Controller {
 
     val result = target match {
       case "activity" => searchActivity()
-      case _ => ErrorMessage.generateError(ErrorMessage.API_NOT_FOUND).json.toString()
+      case _ => ErrorMessage.generateError(ErrorMessage.MESSAGE_API_NOT_FOUND).json.toString()
     }
 
     Ok(result)

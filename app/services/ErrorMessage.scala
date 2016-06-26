@@ -7,12 +7,11 @@ import scala.concurrent.Future
 import scala.util.Try
 
 object ErrorMessage {
-  val keyErrorMessage = "errorMessage"
-  val keySuccessMessage = "successMessage"
+  private val keyErrorMessage = "errorMessage"
 
-  val INVALID_JSON = "Invalid json"
-  val DB_ERROR = "DB error"
-  val API_NOT_FOUND = "Api not found"
+  val MESSAGE_INVALID_JSON = "Invalid json"
+  val MESSAGE_DB_ERROR = "DB error"
+  val MESSAGE_API_NOT_FOUND = "Api not found"
 
   case class ErrorMessage(json: JsValue)
 

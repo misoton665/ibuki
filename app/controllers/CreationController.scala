@@ -20,8 +20,8 @@ class CreationController @Inject() (activityRepo: ActivityRepo) extends Controll
       // /create/action
       case ("action", js)   => createAction(js)
 
-      // otherwise it will be occurred error that an api not found.
-      case _ => ApiError(generateError(API_NOT_FOUND))
+      // otherwise it make an error that api not found.
+      case _ => ApiError(generateError(MESSAGE_API_NOT_FOUND))
     }
 
     result.getAsFuture.map(v => Ok(v))
@@ -59,15 +59,15 @@ class CreationController @Inject() (activityRepo: ActivityRepo) extends Controll
         case List(Some(activityName), Some(userId), Some(groupId)) =>
           ApiSuccess(activityRepo.create(activityName, userId, groupId).map(_.toString))
 
-        case _ => ApiError(generateError(INVALID_JSON))
+        case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }
     } else {
-      ApiError(generateError(INVALID_JSON))
+      ApiError(generateError(MESSAGE_INVALID_JSON))
     }
   }
 
   private def createAction(json: JsValue): ApiResult[String] = {
-    ApiError(generateError(INVALID_JSON))
+    ApiError(generateError(MESSAGE_INVALID_JSON))
   }
 
 }
