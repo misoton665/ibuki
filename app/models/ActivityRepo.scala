@@ -26,6 +26,8 @@ class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseCo
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
   def createActivity(activityName: String, userId: String, groupId: String) = {
+    // TODO: validate the parameters
+
     val activityId = MessageHashGenerator.generateHash(activityName + groupId, userId)
     val date = DateConverter.generateNowDate
     val newActivity = ActivityRow(0, activityId, activityName, userId, groupId, date)

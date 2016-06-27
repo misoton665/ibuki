@@ -24,6 +24,8 @@ class IbukiGroupRepo @Inject()(override protected val dbConfigProvider: Database
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
   def createIbukiGroup(groupId: String, groupName: String, ownerId: String) = {
+    // TODO: validate the parameters
+
     val date = DateConverter.generateNowDate
     val newIbukiGroup = IbukiGroupRow(0, groupId, groupName, ownerId, date)
 

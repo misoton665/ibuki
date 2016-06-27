@@ -24,6 +24,8 @@ class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
   def createIbukiUser(userId: String, userName: String, email: String) = {
+    // TODO: validate the parameters
+
     val date = DateConverter.generateNowDate
     val newIbukiUser = IbukiUserRow(0, userId, userName, email, date)
 
