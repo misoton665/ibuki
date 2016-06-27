@@ -57,7 +57,7 @@ class CreationController @Inject() (activityRepo: ActivityRepo) extends Controll
     if (isValidJson) {
       parameters match {
         case List(Some(activityName), Some(userId), Some(groupId)) =>
-          ApiSuccess(activityRepo.create(activityName, userId, groupId).map(_.toString))
+          ApiSuccess(activityRepo.createActivity(activityName, userId, groupId).map(_.toString))
 
         case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }

@@ -13,8 +13,15 @@ class TableRepository @Inject()(protected val dbConfigProvider: DatabaseConfigPr
 
   import dbConfig.driver.api._
 
-  def findBySomething[A <: slick.driver.PostgresDriver.api.Table[R], R]
-    (comp: (A) => slick.lifted.Rep[Boolean])
-    (implicit tableQuery: slick.lifted.TableQuery[A]): Future[List[R]]
+  type TableType[RT] = slick.driver.PostgresDriver.api.Table[RT]
+
+  def findBySomething[TT <: TableType[RT], RT]
+    (comp: (TT) => slick.lifted.Rep[Boolean])
+    (implicit tableQuery: slick.lifted.TableQuery[TT]): Future[List[RT]]
     = db.run(tableQuery.filter[slick.lifted.Rep[Boolean]](comp).to[List].result)
+
+  def insertSomething[TT <: TableType[RT], RT]
+    (idExtractor: (TT) => slick.lifted.Rep[Int])(row: RT)
+    (implicit tableQuery: slick.lifted.TableQuery[TT]): Future[Int]
+    = db.run(tableQuery returning tableQuery.map(idExtractor) += row)
 }

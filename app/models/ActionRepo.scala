@@ -13,7 +13,9 @@ class ActionRepo @Inject()(override protected val dbConfigProvider: DatabaseConf
 
   implicit val Actions: TableQuery[Action] = TableQuery[Action]
 
-  def findBy = findBySomething[Action, ActionRow] _
+  private def findBy = findBySomething[Action, ActionRow] _
+
+  private def create = insertSomething[Action, ActionRow](_.id) _
 
   def findById(id: Int): Future[List[ActionRow]] = findBy(_.id === id)
 

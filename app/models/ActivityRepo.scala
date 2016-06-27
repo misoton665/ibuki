@@ -10,33 +10,29 @@ import services.DateConverter._
 
 import scala.concurrent.Future
 
-class ActivityRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) {
-
-  val dbConfig = dbConfigProvider.get[JdbcProfile]
-  val db = dbConfig.db
+class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider) extends TableRepository(dbConfigProvider){
 
   import dbConfig.driver.api._
 
-  private val Activities = TableQuery[Activity]
+  implicit val Activities = TableQuery[Activity]
 
-  def findById(id: Int): Future[List[ActivityRow]] =
-    db.run(Activities.filter(_.id === id).to[List].result)
+  private def findBy = findBySomething[Activity, ActivityRow] _
 
-  def findByActivityId(activityId: String): Future[List[ActivityRow]] =
-    db.run(Activities.filter(_.activityId === activityId).to[List].result)
+  private def create = insertSomething[Activity, ActivityRow](_.id) _
 
-  def findByUserId(userId: String): Future[List[ActivityRow]] =
-    db.run(Activities.filter(_.userId === userId).to[List].result)
+  def findById(id: Int): Future[List[ActivityRow]] = findBy(_.id === id)
 
-  def findByGroupId(groupId: String): Future[List[ActivityRow]] =
-    db.run(Activities.filter(_.groupId === groupId).to[List].result)
+  def findByActivityId(activityId: String): Future[List[ActivityRow]] = findBy(_.activityId === activityId)
 
-  def create(activityName: String, userId: String, groupId: String): Future[Int] = {
+  def findByUserId(userId: String): Future[List[ActivityRow]] = findBy(_.userId === userId)
+
+  def findByGroupId(groupId: String): Future[List[ActivityRow]] = findBy(_.groupId === groupId)
+
+  def createActivity(activityName: String, userId: String, groupId: String): Future[Int] = {
     val activityId = MessageHashGenerator.generateHash(activityName + groupId, userId)
     val date = generateNowDate
+    val newActivity = ActivityRow(0, activityId, activityName, userId, groupId, date)
 
-    db.run(
-      Activities returning Activities.map(_.id) += ActivityRow(0, activityId, activityName, userId, groupId, date)
-    )
+    create(newActivity)
   }
 }
