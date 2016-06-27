@@ -13,13 +13,13 @@ class ActionRepo @Inject()(override protected val dbConfigProvider: DatabaseConf
 
   implicit val Actions: TableQuery[Action] = TableQuery[Action]
 
-  def findBy[A <: slick.lifted.Rep[Action]] = findBySomething[A, Action, ActionRow] _
-
-  def findByGroupId(groupId: String): Future[List[ActionRow]] = findBy(_.groupId === groupId)
+  def findBy = findBySomething[Action, ActionRow] _
 
   def findById(id: Int): Future[List[ActionRow]] = findBy(_.id === id)
 
   def findByActionId(actionId: String): Future[List[ActionRow]] = findBy(_.actionId === actionId)
 
   def findByUserId(userId: String): Future[List[ActionRow]] = findBy(_.userId === userId)
+
+  def findByGroupId(groupId: String): Future[List[ActionRow]] = findBy(_.groupId === groupId)
 }
