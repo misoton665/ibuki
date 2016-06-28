@@ -6,6 +6,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.JdbcProfile
 
 import scala.concurrent.Future
+import scala.reflect.runtime.universe._
 
 /**
   * The Super class for use function which control DB on specific table TT
@@ -14,8 +15,10 @@ import scala.concurrent.Future
   * @tparam TT TableType of DB in models/Tables.scala, be structured by RT
   * @tparam RT RowType of DB in models/Tables.scala, structure for TT
   */
-class TableRepository[TT <: slick.driver.PostgresDriver.api.Table[RT], RT] @Inject()
+class TableRepository[TT <: slick.driver.PostgresDriver.api.Table[RT], RT <: TypeTag] @Inject()
     (protected val dbConfigProvider: DatabaseConfigProvider) {
+
+  require(typeOf[RT] <:< typeOf[TT#TableElementType])
 
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   val db = dbConfig.db
