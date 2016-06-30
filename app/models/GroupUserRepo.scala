@@ -6,6 +6,8 @@ import models.Tables.{GroupUser, GroupUserRow, IbukiUserRow, IbukiGroupRow}
 import play.api.db.slick.DatabaseConfigProvider
 import services.DateConverter
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.concurrent.Future
 
 class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider, groupRepo: IbukiGroupRepo, userRepo: IbukiUserRepo)
