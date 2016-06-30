@@ -30,14 +30,17 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
   def createGroupUser(groupId: String, userId: String) = {
     val groups: Future[List[IbukiGroupRow]] = groupRepo.findByGroupId(groupId)
     val users: Future[List[IbukiUserRow]] = userRepo.findByUserId(userId)
-    val idsAreExist: Future[Boolean] =
+    val groupUsers: Future[List[GroupUserRow]] = this.findByUserId(userId)
+    val validation: Future[Boolean] =
       for (
         group <- groups;
-        user <- users
+        user <- users;
+        groupUser <- groupUsers
       ) yield {
-        (group, user) match {
-          case (List(), _) => false
-          case (_, List()) => false
+        (group, user, groupUser) match {
+          case (List(), _, _) => false
+          case (_, List(), _) => false
+          case (_, _, List()) => false
           case _ => true
         }
       }
@@ -46,7 +49,7 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
     val newGroupUser = GroupUserRow(0, groupId, userId, date)
     val creation = create(newGroupUser)
     for (
-      e <- idsAreExist;
+      e <- validation;
       c <- creation
     ) yield {
       if (e) {
