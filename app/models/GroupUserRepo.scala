@@ -2,12 +2,14 @@ package models
 
 import javax.inject.Inject
 
-import models.Tables.{GroupUser, GroupUserRow}
+import models.Tables.{GroupUser, GroupUserRow, IbukiUserRow, IbukiGroupRow}
 import play.api.db.slick.DatabaseConfigProvider
 import services.DateConverter
 
-class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider)
-  extends TableRepository[GroupUser, GroupUserRow](dbConfigProvider){
+import scala.concurrent.Future
+
+class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider, groupRepo: IbukiGroupRepo, userRepo: IbukiUserRepo)
+  extends TableRepository[GroupUser, GroupUserRow](dbConfigProvider) {
 
   import dbConfig.driver.api._
 
@@ -24,9 +26,32 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
   def createGroupUser(groupId: String, userId: String) = {
+    val groups: Future[List[IbukiGroupRow]] = groupRepo.findByGroupId(groupId)
+    val users: Future[List[IbukiUserRow]] = userRepo.findByUserId(userId)
+    val idsAreExist: Future[Boolean] =
+      for (
+        group <- groups;
+        user <- users
+      ) yield {
+        (group, user) match {
+          case (List(), _) => false
+          case (_, List()) => false
+          case _ => true
+        }
+      }
+
     val date = DateConverter.generateNowDate
     val newGroupUser = GroupUserRow(0, groupId, userId, date)
-
-    create(newGroupUser)
+    val creation = create(newGroupUser)
+    for (
+      e <- idsAreExist;
+      c <- creation
+    ) yield {
+      if (e) {
+        Some(c)
+      } else {
+        None
+      }
+    }
   }
 }
