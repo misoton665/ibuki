@@ -6,9 +6,9 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, BodyParsers, Controller}
 import services.ErrorMessage._
-import models.ActivityRepo
+import models.{ActivityRepo, IbukiGroupRepo, IbukiUserRepo, TableRepository}
 
-class CreationController @Inject() (activityRepo: ActivityRepo) extends Controller {
+class CreationController @Inject() (activityRepo: ActivityRepo, ibukiGroupRepo: IbukiGroupRepo, ibukiUserRepo: IbukiUserRepo) extends Controller {
 
   def create(target: String) = Action.async(BodyParsers.parse.json) { request =>
     val jsonBody: JsValue = request.body
@@ -20,6 +20,11 @@ class CreationController @Inject() (activityRepo: ActivityRepo) extends Controll
       // /create/action
       case ("action", js)   => createAction(js)
 
+      // /create/group
+      case ("group", js)    => createGroup(js)
+
+      // /create/user
+      case ("user", js) => createUser(js)
       // otherwise it make an error that api not found.
       case _ => ApiError(generateError(MESSAGE_API_NOT_FOUND))
     }
@@ -48,26 +53,54 @@ class CreationController @Inject() (activityRepo: ActivityRepo) extends Controll
     */
   private def createActivity(json: JsValue): ApiResult[String] = {
     val parameterKeys = List("activity_name", "user_id", "group_id")
-    val parameters: List[Option[String]] = parameterKeys.map { key =>
-      (json \ key).asOpt[String]
-    }
 
-    val isValidJson: Boolean = parameters.forall(_.isDefined)
-
-    if (isValidJson) {
-      parameters match {
+    extractStringElements(json, parameterKeys, {
         case List(Some(activityName), Some(userId), Some(groupId)) =>
           ApiSuccess(activityRepo.createActivity(activityName, userId, groupId).map(_.toString))
 
         case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }
-    } else {
-      ApiError(generateError(MESSAGE_INVALID_JSON))
-    }
+    )
   }
 
   private def createAction(json: JsValue): ApiResult[String] = {
     ApiError(generateError(MESSAGE_INVALID_JSON))
   }
 
+  private def createGroup(json: JsValue): ApiResult[String] = {
+    val parameterKeys = List("groupId", "groupName", "ownerId")
+
+    extractStringElements(json, parameterKeys, {
+        case List(Some(groupId), Some(groupName), Some(ownerId)) =>
+          ApiSuccess(ibukiGroupRepo.createIbukiGroup(groupId, groupName, ownerId).map(_.toString))
+        case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
+      }
+    )
+  }
+
+  private def createUser(json: JsValue): ApiResult[String] = {
+    val parameterKeys = List("userId", "userName", "email")
+
+    extractStringElements(json, parameterKeys, {
+        case List(Some(userId), Some(userName), Some(email)) =>
+          ApiSuccess(ibukiUserRepo.createIbukiUser(userId, userName, email).map(_.toString))
+        case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
+      }
+    )
+  }
+
+  private def extractStringElements[T <: TableRepository[_, _]]
+  (json: JsValue, keys: List[String], processIfSuccess: List[Option[String]] => ApiResult[String]): ApiResult[String] ={
+    val parameters: List[Option[String]] = keys.map {key =>
+      (json \ key).asOpt[String].map(_.toString)
+    }
+
+    val isValidJson: Boolean = parameters.forall(_.isDefined)
+
+    if (isValidJson) {
+      processIfSuccess(parameters)
+    } else {
+      ApiError(generateError(MESSAGE_INVALID_JSON))
+    }
+  }
 }
