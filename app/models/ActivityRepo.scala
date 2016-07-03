@@ -5,8 +5,9 @@ import javax.inject.Inject
 import play.api.db.slick.DatabaseConfigProvider
 import models.Tables.{Activity, ActivityRow}
 import services.{DateConverter, MessageHashGenerator}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider)
+class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider, ibukiUserRepo: IbukiUserRepo, ibukiGroupRepo: IbukiGroupRepo)
     extends TableRepository[Activity, ActivityRow](dbConfigProvider){
 
   import dbConfig.driver.api._
@@ -26,12 +27,34 @@ class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseCo
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
   def createActivity(activityName: String, userId: String, groupId: String) = {
-    // TODO: validate the parameters
+    val users = ibukiUserRepo.findByUserId(userId)
+    val groups = ibukiGroupRepo.findByGroupId(groupId)
+    val validation =
+      for(
+        user <- users;
+        group <- groups
+      ) yield {
+        (user, group) match {
+          case (List(), _) => false
+          case (_, List()) => false
+          case _ => true
+        }
+      }
 
-    val activityId = MessageHashGenerator.generateHash(activityName + groupId, userId)
-    val date = DateConverter.generateNowDate
-    val newActivity = ActivityRow(0, activityId, activityName, userId, groupId, date)
+    lazy val activityId = MessageHashGenerator.generateHash(activityName + groupId, userId)
+    lazy val date = DateConverter.generateNowDate
+    lazy val newActivity = ActivityRow(0, activityId, activityName, userId, groupId, date)
+    val createProcess = create(newActivity)
 
-    create(newActivity)
+    for(
+      e <- validation;
+      c <- createProcess
+    ) yield {
+      if(e) {
+        Some(c)
+      } else {
+        None
+      }
+    }
   }
 }

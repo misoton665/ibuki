@@ -5,6 +5,8 @@ import javax.inject.Inject
 import models.Tables.{IbukiUser, IbukiUserRow}
 import play.api.db.slick.DatabaseConfigProvider
 import services.DateConverter
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider)
   extends TableRepository[IbukiUser, IbukiUserRow](dbConfigProvider) {
@@ -23,12 +25,20 @@ class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
 
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
-  def createIbukiUser(userId: String, userName: String, email: String) = {
-    // TODO: validate the parameters
+  def createIbukiUser(userId: String, userName: String, email: String): Future[Option[Int]] = {
+    val validation = email.matches("""/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/""")
+    lazy val date = DateConverter.generateNowDate
+    lazy val newIbukiUser = IbukiUserRow(0, userId, userName, email, date)
+    val createProcess = create(newIbukiUser)
 
-    val date = DateConverter.generateNowDate
-    val newIbukiUser = IbukiUserRow(0, userId, userName, email, date)
-
-    create(newIbukiUser)
+    for (
+      c <- createProcess
+    ) yield {
+      if (validation) {
+        Some(c)
+      } else {
+        None
+      }
+    }
   }
 }

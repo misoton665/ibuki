@@ -7,6 +7,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.{Action, BodyParsers, Controller}
 import services.ErrorMessage._
 import models.{ActivityRepo, IbukiGroupRepo, IbukiUserRepo, TableRepository}
+import scala.concurrent.Future
 
 class CreationController @Inject() (activityRepo: ActivityRepo, ibukiGroupRepo: IbukiGroupRepo, ibukiUserRepo: IbukiUserRepo) extends Controller {
 
@@ -56,7 +57,9 @@ class CreationController @Inject() (activityRepo: ActivityRepo, ibukiGroupRepo: 
 
     extractStringElements(json, parameterKeys, {
         case List(Some(activityName), Some(userId), Some(groupId)) =>
-          ApiSuccess(activityRepo.createActivity(activityName, userId, groupId).map(_.toString))
+          activityRepo.createActivity(activityName, userId, groupId) match {
+            case Some(future) => ApiSuccess(future.map(_.toString))
+          }
 
         case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }
@@ -83,7 +86,11 @@ class CreationController @Inject() (activityRepo: ActivityRepo, ibukiGroupRepo: 
 
     extractStringElements(json, parameterKeys, {
         case List(Some(userId), Some(userName), Some(email)) =>
-          ApiSuccess(ibukiUserRepo.createIbukiUser(userId, userName, email).map(_.toString))
+          val createProcess: Future[String] = ibukiUserRepo.createIbukiUser(userId, userName, email).map{
+            case Some(i) => i.toString
+            case None => generateError(MESSAGE_VALUE_IS_NOT_FOUND(email)).json.toString
+          }
+          ApiSuccess(createProcess)
         case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }
     )
