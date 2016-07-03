@@ -57,10 +57,11 @@ class CreationController @Inject() (activityRepo: ActivityRepo, ibukiGroupRepo: 
 
     extractStringElements(json, parameterKeys, {
         case List(Some(activityName), Some(userId), Some(groupId)) =>
-          activityRepo.createActivity(activityName, userId, groupId) match {
-            case Some(future) => ApiSuccess(future.map(_.toString))
+          val createProcess = activityRepo.createActivity(activityName, userId, groupId).map{
+            case Some(i) => i.toString
+            case None => generateError(MESSAGE_SOME_IDS_HAVE_NOT_REGISTERED).json.toString
           }
-
+          ApiSuccess(createProcess)
         case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }
     )
