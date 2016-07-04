@@ -47,16 +47,8 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
 
     val date = DateConverter.generateNowDate
     val newGroupUser = GroupUserRow(0, groupId, userId, date)
-    val creation = create(newGroupUser)
-    for (
-      e <- validation;
-      c <- creation
-    ) yield {
-      if (e) {
-        Some(c)
-      } else {
-        None
-      }
-    }
+
+    validation.flatMap(if (_) create(newGroupUser).map(Some(_)) else Future(None))
+
   }
 }

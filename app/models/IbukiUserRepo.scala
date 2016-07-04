@@ -26,19 +26,14 @@ class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
   def createIbukiUser(userId: String, userName: String, email: String): Future[Option[Int]] = {
-    val validation = email.matches("""/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/""")
+    val validation = true //email.matches("""/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/""")
     lazy val date = DateConverter.generateNowDate
     lazy val newIbukiUser = IbukiUserRow(0, userId, userName, email, date)
-    val createProcess = create(newIbukiUser)
 
-    for (
-      c <- createProcess
-    ) yield {
-      if (validation) {
-        Some(c)
-      } else {
-        None
-      }
+    if (validation) {
+      create(newIbukiUser).map(Some(_))
+    } else {
+      Future(None)
     }
   }
 }

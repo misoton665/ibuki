@@ -5,10 +5,12 @@ import javax.inject.Inject
 import models.Tables.{Action, ActionRow}
 import play.api.db.slick.DatabaseConfigProvider
 import services.{DateConverter, MessageHashGenerator}
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ActionRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider, ibukiUserRepo: IbukiUserRepo, ibukiGroupRepo: IbukiGroupRepo)
-    extends TableRepository[Action, ActionRow](dbConfigProvider){
+  extends TableRepository[Action, ActionRow](dbConfigProvider) {
 
   import dbConfig.driver.api._
 
@@ -30,7 +32,7 @@ class ActionRepo @Inject()(override protected val dbConfigProvider: DatabaseConf
     val users = ibukiUserRepo.findByUserId(userId)
     val groups = ibukiGroupRepo.findByGroupId(groupId)
     val validation =
-      for(
+      for (
         user <- users;
         group <- groups
       ) yield {
@@ -44,17 +46,7 @@ class ActionRepo @Inject()(override protected val dbConfigProvider: DatabaseConf
     lazy val date = DateConverter.generateNowDate
     lazy val actionId = MessageHashGenerator.generateHash(actionBody + userId, date.toString)
     lazy val newAction = ActionRow(0, actionId, actionType, actionBody, userId, groupId, date)
-    val createProcess = create(newAction)
 
-    for(
-      e <- validation;
-      c <- createProcess
-    ) yield {
-      if (e) {
-        Some(e)
-      } else {
-        None
-      }
-    }
+    validation.flatMap(if (_) create(newAction).map(Some(_)) else Future(None))
   }
 }
