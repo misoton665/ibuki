@@ -29,7 +29,7 @@ class TableRepository[TT <: slick.driver.PostgresDriver.api.Table[RT], RT] @Inje
     * @param tableQuery TableQuery, for instance, implicit val Activities = TableQuery[Activity], on Activity = TT
     * @return
     */
-  def findBy
+  protected def findBy
     (comp: (TT) => slick.lifted.Rep[Boolean])
     (implicit tableQuery: slick.lifted.TableQuery[TT]): Future[List[RT]]
     = db.run(tableQuery.filter[slick.lifted.Rep[Boolean]](comp).to[List].result)
@@ -42,7 +42,7 @@ class TableRepository[TT <: slick.driver.PostgresDriver.api.Table[RT], RT] @Inje
     * @param tableQuery TableQuery, for instance, implicit val Activities = TableQuery[Activity], on Activity = TT
     * @return An ID of a new row.
     */
-  def insert
+  protected def insert
     (idExtractor: (TT) => slick.lifted.Rep[Int])(row: RT)
     (implicit tableQuery: slick.lifted.TableQuery[TT]): Future[Int]
     = db.run(tableQuery returning tableQuery.map(idExtractor) += row)
