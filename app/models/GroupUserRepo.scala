@@ -40,8 +40,8 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
         (group, user, groupUser) match {
           case (List(), _, _) => false
           case (_, List(), _) => false
-          case (_, _, List()) => false
-          case _ => true
+          case _ if !groupUser.exists(_.groupId == groupId) => true
+          case _ => false
         }
       }
 

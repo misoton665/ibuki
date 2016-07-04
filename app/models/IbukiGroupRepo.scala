@@ -28,14 +28,17 @@ class IbukiGroupRepo @Inject()(override protected val dbConfigProvider: Database
 
   def createIbukiGroup(groupId: String, groupName: String, ownerId: String): Future[Option[Int]] = {
     // validation
+    val groups = this.findByGroupId(groupId)
     val owners = ibukiUserRepo.findByUserId(ownerId)
     val validation =
       for (
+        group <- groups;
         owner <- owners
       ) yield {
-        owner match {
-          case List() => false
-          case _ => true
+        (group, owner) match {
+          case (_, List()) => false
+          case _ if group.isEmpty => true
+          case _ => false
         }
       }
 
