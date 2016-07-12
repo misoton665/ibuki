@@ -5,7 +5,7 @@
 # An example controller showing a sample home page
 GET     /                           @controllers.HomeController.index
 
-POST    /registration/:target             @controllers.RegistrationController.create(target)
+POST    /registration/:target       @controllers.RegistrationController.create(target)
 
 GET     /search/:target             @controllers.SearchController.search(target)
 
