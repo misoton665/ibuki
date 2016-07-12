@@ -5,7 +5,7 @@ import javax.inject.Inject
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, BodyParsers, Controller}
-import services.ErrorMessage._
+import services.ResultMessage._
 import models.{ActivityRepo, IbukiGroupRepo, IbukiUserRepo, TableRepository}
 import scala.concurrent.Future
 

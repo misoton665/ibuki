@@ -3,7 +3,7 @@ package controllers
 import javax.inject.Inject
 
 import play.api.mvc.{Action, Controller}
-import services.ErrorMessage
+import services.ResultMessage
 
 class SearchController @Inject() extends Controller {
 
@@ -11,7 +11,7 @@ class SearchController @Inject() extends Controller {
 
     val result = target match {
       case "activity" => searchActivity()
-      case _ => ErrorMessage.generateError(ErrorMessage.MESSAGE_API_NOT_FOUND).json.toString()
+      case _ => ResultMessage.generateError(ResultMessage.MESSAGE_API_NOT_FOUND).json.toString()
     }
 
     Ok(result)
