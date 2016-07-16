@@ -14,21 +14,21 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
   def register(target: String) = Action.async(BodyParsers.parse.json) { request =>
     val jsonBody: JsValue = request.body
 
-    (target, jsonBody) match {
+    target match {
       // /register/activity
-      case ("activity", js) => registerActivity(js)
+      case "activity" => registerActivity(jsonBody)
 
       // /register/action
-      case ("action", js)   => registerAction(js)
+      case "action"   => registerAction(jsonBody)
 
       // /register/group
-      case ("group", js)    => registerGroup(js)
+      case "group"    => registerGroup(jsonBody)
 
       // /register/user
-      case ("user", js) => registerUser(js)
+      case "user" => registerUser(jsonBody)
 
       // otherwise it make an error that api not found.
-      case _ => Future(BadRequest(generateError(MESSAGE_API_NOT_FOUND).json.toString))
+      case _ => Future(NotFound(generateError(MESSAGE_API_NOT_FOUND).json.toString))
     }
   }
 
