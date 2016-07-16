@@ -14,7 +14,7 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
   def register(target: String) = Action.async(BodyParsers.parse.json) { request =>
     val jsonBody: JsValue = request.body
 
-    val result: ApiResult[String] = (target, jsonBody) match {
+    val result: ApiResult = (target, jsonBody) match {
       // /register/activity
       case ("activity", js) => registerActivity(js)
 
@@ -30,7 +30,7 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
       case _ => ApiError(generateError(MESSAGE_API_NOT_FOUND))
     }
 
-    result.getAsFuture.map(v => Ok(v))
+    result.getAsFuture
   }
 
   /**
@@ -52,7 +52,7 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
     * @param json JSON string by request body
     * @return return JSON
     */
-  private def registerActivity(json: JsValue): ApiResult[String] = {
+  private def registerActivity(json: JsValue): ApiResult = {
     val parameterKeys = List("activity_name", "user_id", "group_id")
 
     extractStringElements(json, parameterKeys, {
@@ -67,11 +67,11 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
     )
   }
 
-  private def registerAction(json: JsValue): ApiResult[String] = {
+  private def registerAction(json: JsValue): ApiResult = {
     ApiError(generateError(MESSAGE_INVALID_JSON))
   }
 
-  private def registerGroup(json: JsValue): ApiResult[String] = {
+  private def registerGroup(json: JsValue): ApiResult = {
     val parameterKeys = List("groupId", "groupName", "ownerId")
 
     extractStringElements(json, parameterKeys, {
@@ -86,7 +86,7 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
     )
   }
 
-  private def registerUser(json: JsValue): ApiResult[String] = {
+  private def registerUser(json: JsValue): ApiResult = {
     val parameterKeys = List("userId", "userName", "email")
 
     extractStringElements(json, parameterKeys, {
@@ -102,7 +102,7 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
   }
 
   private def extractStringElements[T <: TableRepository[_, _]]
-  (json: JsValue, keys: List[String], processIfSuccess: Option[List[String]] => ApiResult[String]): ApiResult[String] ={
+  (json: JsValue, keys: List[String], processIfSuccess: Option[List[String]] => ApiResult): ApiResult ={
     val parameters: List[Option[String]] = keys.map {key =>
       (json \ key).asOpt[String].map(_.toString)
     }
