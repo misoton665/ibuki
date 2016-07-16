@@ -42,8 +42,8 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
     *
     * return JSON
     * OK:
-    *   activity_id: string - registerd activity ID
-    *   date: string        - A Date when activity registerd
+    *   activity_id: string - registered activity ID
+    *   date: string        - A Date when activity registered
     *
     * NG:
     *   Error message JSON by ErrorMessage
