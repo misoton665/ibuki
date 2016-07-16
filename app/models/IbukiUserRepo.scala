@@ -15,7 +15,7 @@ class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
 
   implicit val IbukiUsers = TableQuery[IbukiUser]
 
-  def create = insert(_.id) _
+  private val insertWithId = insert(_.id) _
 
   def findById(id: Int) = findBy(_.id === id)
 
@@ -25,7 +25,7 @@ class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
 
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
-  def createIbukiUser(userId: String, userName: String, email: String): Future[Option[Int]] = {
+  def insertIbukiUser(userId: String, userName: String, email: String): Future[Option[Int]] = {
     val users = this.findByUserId(userId)
     def isValidEmail(email: String): Boolean =
       """(\w+)@([\w\.]+)""".r.unapplySeq(email).isDefined
@@ -40,6 +40,6 @@ class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
     lazy val date = DateConverter.generateNowDate
     lazy val newIbukiUser = IbukiUserRow(0, userId, userName, email, date)
 
-    validation.flatMap(if (_) create(newIbukiUser).map(Some(_)) else Future(None))
+    validation.flatMap(if (_) insertWithId(newIbukiUser).map(Some(_)) else Future(None))
   }
 }

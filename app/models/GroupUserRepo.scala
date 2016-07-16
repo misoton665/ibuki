@@ -17,7 +17,7 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
 
   implicit val Actions = TableQuery[GroupUser]
 
-  private def create = insert(_.id) _
+  private val insertWithId = insert(_.id) _
 
   def findById(id: Int) = findBy(_.id === id)
 
@@ -27,7 +27,7 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
 
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
-  def createGroupUser(groupId: String, userId: String) = {
+  def insertGroupUser(groupId: String, userId: String) = {
     val groups: Future[List[IbukiGroupRow]] = groupRepo.findByGroupId(groupId)
     val users: Future[List[IbukiUserRow]] = userRepo.findByUserId(userId)
     val groupUsers: Future[List[GroupUserRow]] = this.findByUserId(userId)
@@ -48,7 +48,7 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
     val date = DateConverter.generateNowDate
     val newGroupUser = GroupUserRow(0, groupId, userId, date)
 
-    validation.flatMap(if (_) create(newGroupUser).map(Some(_)) else Future(None))
+    validation.flatMap(if (_) insertWithId(newGroupUser).map(Some(_)) else Future(None))
 
   }
 }

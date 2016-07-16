@@ -3,6 +3,7 @@ package services
 import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object ResultMessage {
   val MESSAGE_INVALID_JSON = "Invalid json"

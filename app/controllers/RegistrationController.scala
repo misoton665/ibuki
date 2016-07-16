@@ -11,21 +11,21 @@ import scala.concurrent.Future
 
 class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRepo: IbukiGroupRepo, ibukiUserRepo: IbukiUserRepo) extends Controller {
 
-  def create(target: String) = Action.async(BodyParsers.parse.json) { request =>
+  def register(target: String) = Action.async(BodyParsers.parse.json) { request =>
     val jsonBody: JsValue = request.body
 
     val result: ApiResult[String] = (target, jsonBody) match {
-      // /create/activity
-      case ("activity", js) => createActivity(js)
+      // /register/activity
+      case ("activity", js) => registerActivity(js)
 
-      // /create/action
-      case ("action", js)   => createAction(js)
+      // /register/action
+      case ("action", js)   => registerAction(js)
 
-      // /create/group
-      case ("group", js)    => createGroup(js)
+      // /register/group
+      case ("group", js)    => registerGroup(js)
 
-      // /create/user
-      case ("user", js) => createUser(js)
+      // /register/user
+      case ("user", js) => registerUser(js)
       // otherwise it make an error that api not found.
       case _ => ApiError(generateError(MESSAGE_API_NOT_FOUND))
     }
@@ -34,7 +34,7 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
   }
 
   /**
-    * createActivity (/contribution/activity)
+    * registerActivity (/register/activity)
     *
     * parameter JSON
     *  activity_name: string - Activity name
@@ -43,8 +43,8 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
     *
     * return JSON
     * OK:
-    *   activity_id: string - Created activity ID
-    *   date: string        - A Date when activity created
+    *   activity_id: string - registerd activity ID
+    *   date: string        - A Date when activity registerd
     *
     * NG:
     *   Error message JSON by ErrorMessage
@@ -52,50 +52,50 @@ class RegistrationController @Inject()(activityRepo: ActivityRepo, ibukiGroupRep
     * @param json JSON string by request body
     * @return return JSON
     */
-  private def createActivity(json: JsValue): ApiResult[String] = {
+  private def registerActivity(json: JsValue): ApiResult[String] = {
     val parameterKeys = List("activity_name", "user_id", "group_id")
 
     extractStringElements(json, parameterKeys, {
         case Some(List(activityName, userId, groupId)) =>
-          val createProcess = activityRepo.createActivity(activityName, userId, groupId).map{
+          val registerProcess = activityRepo.insertActivity(activityName, userId, groupId).map{
             case Some(i) => i.toString
             case None => generateError(MESSAGE_SOME_IDS_HAVE_NOT_REGISTERED).json.toString
           }
-          ApiSuccess(createProcess)
+          ApiSuccess(registerProcess)
         case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }
     )
   }
 
-  private def createAction(json: JsValue): ApiResult[String] = {
+  private def registerAction(json: JsValue): ApiResult[String] = {
     ApiError(generateError(MESSAGE_INVALID_JSON))
   }
 
-  private def createGroup(json: JsValue): ApiResult[String] = {
+  private def registerGroup(json: JsValue): ApiResult[String] = {
     val parameterKeys = List("groupId", "groupName", "ownerId")
 
     extractStringElements(json, parameterKeys, {
         case Some(List(groupId, groupName, ownerId)) =>
-          val createProcess = ibukiGroupRepo.createIbukiGroup(groupId, groupName, ownerId).map {
+          val registerProcess = ibukiGroupRepo.insertIbukiGroup(groupId, groupName, ownerId).map {
             case Some(i) => i.toString
             case None => generateError(MESSAGE_SOME_IDS_HAVE_NOT_REGISTERED).json.toString
           }
-          ApiSuccess(createProcess)
+          ApiSuccess(registerProcess)
         case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }
     )
   }
 
-  private def createUser(json: JsValue): ApiResult[String] = {
+  private def registerUser(json: JsValue): ApiResult[String] = {
     val parameterKeys = List("userId", "userName", "email")
 
     extractStringElements(json, parameterKeys, {
         case Some(List(userId, userName, email)) =>
-          val createProcess: Future[String] = ibukiUserRepo.createIbukiUser(userId, userName, email).map{
+          val registerProcess: Future[String] = ibukiUserRepo.insertIbukiUser(userId, userName, email).map{
             case Some(i) => i.toString
             case None => generateError(MESSAGE_VALUE_IS_NOT_FOUND(email)).json.toString
           }
-          ApiSuccess(createProcess)
+          ApiSuccess(registerProcess)
         case _ => ApiError(generateError(MESSAGE_INVALID_JSON))
       }
     )

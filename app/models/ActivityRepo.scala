@@ -16,7 +16,7 @@ class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseCo
 
   implicit val Activities = TableQuery[Activity]
 
-  private def create = insert(_.id) _
+  private val insertWithId = insert(_.id) _
 
   def findById(id: Int) = findBy(_.id === id)
 
@@ -28,7 +28,7 @@ class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseCo
 
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
-  def createActivity(activityName: String, userId: String, groupId: String) = {
+  def insertActivity(activityName: String, userId: String, groupId: String) = {
     val users = ibukiUserRepo.findByUserId(userId)
     val groups = ibukiGroupRepo.findByGroupId(groupId)
     val validation =
@@ -47,6 +47,6 @@ class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseCo
     lazy val date = DateConverter.generateNowDate
     lazy val newActivity = ActivityRow(0, activityId, activityName, userId, groupId, date)
 
-    validation.flatMap(if (_) create(newActivity).map(Some(_)) else Future(None))
+    validation.flatMap(if (_) insertWithId(newActivity).map(Some(_)) else Future(None))
   }
 }

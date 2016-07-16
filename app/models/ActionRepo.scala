@@ -16,7 +16,7 @@ class ActionRepo @Inject()(override protected val dbConfigProvider: DatabaseConf
 
   implicit val Actions = TableQuery[Action]
 
-  private def create = insert(_.id) _
+  private val insertWithId = insert(_.id) _
 
   def findById(id: Int) = findBy(_.id === id)
 
@@ -28,7 +28,7 @@ class ActionRepo @Inject()(override protected val dbConfigProvider: DatabaseConf
 
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
-  def createAction(actionType: Int, actionBody: String, userId: String, groupId: String) = {
+  def insertAction(actionType: Int, actionBody: String, userId: String, groupId: String) = {
     val users = ibukiUserRepo.findByUserId(userId)
     val groups = ibukiGroupRepo.findByGroupId(groupId)
     val validation =
@@ -47,6 +47,6 @@ class ActionRepo @Inject()(override protected val dbConfigProvider: DatabaseConf
     lazy val actionId = MessageHashGenerator.generateHash(actionBody + userId, date.toString)
     lazy val newAction = ActionRow(0, actionId, actionType, actionBody, userId, groupId, date)
 
-    validation.flatMap(if (_) create(newAction).map(Some(_)) else Future(None))
+    validation.flatMap(if (_) insertWithId(newAction).map(Some(_)) else Future(None))
   }
 }

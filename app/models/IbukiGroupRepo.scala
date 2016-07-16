@@ -16,7 +16,7 @@ class IbukiGroupRepo @Inject()(override protected val dbConfigProvider: Database
 
   implicit val IbukiGroups = TableQuery[IbukiGroup]
 
-  def create = insert(_.id) _
+  private val insertWithId = insert(_.id) _
 
   def findById(id: Int) = findBy(_.id === id)
 
@@ -26,7 +26,7 @@ class IbukiGroupRepo @Inject()(override protected val dbConfigProvider: Database
 
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
-  def createIbukiGroup(groupId: String, groupName: String, ownerId: String): Future[Option[Int]] = {
+  def insertIbukiGroup(groupId: String, groupName: String, ownerId: String): Future[Option[Int]] = {
     // validation
     val groups = this.findByGroupId(groupId)
     val owners = ibukiUserRepo.findByUserId(ownerId)
@@ -46,6 +46,6 @@ class IbukiGroupRepo @Inject()(override protected val dbConfigProvider: Database
     lazy val date = DateConverter.generateNowDate
     lazy val newGroup = IbukiGroupRow(0, groupId, groupName, ownerId, date)
 
-    validation.flatMap(if (_) create(newGroup).map(Some(_)) else Future(None))
+    validation.flatMap(if (_) insertWithId(newGroup).map(Some(_)) else Future(None))
   }
 }
