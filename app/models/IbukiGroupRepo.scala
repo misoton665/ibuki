@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import models.Tables.{IbukiGroup, IbukiGroupRow}
 import play.api.db.slick.DatabaseConfigProvider
-import services.DateConverter
+import services.{DateConverter, TableRepositoryMessages}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -26,7 +26,7 @@ class IbukiGroupRepo @Inject()(override protected val dbConfigProvider: Database
 
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
-  def insertIbukiGroup(groupId: String, groupName: String, ownerId: String): Future[Option[Int]] = {
+  def insertIbukiGroup(groupId: String, groupName: String, ownerId: String) = {
     // validation
     val groups = this.findByGroupId(groupId)
     val owners = ibukiUserRepo.findByUserId(ownerId)
@@ -46,6 +46,11 @@ class IbukiGroupRepo @Inject()(override protected val dbConfigProvider: Database
     lazy val date = DateConverter.generateNowDate
     lazy val newGroup = IbukiGroupRow(0, groupId, groupName, ownerId, date)
 
-    validation.flatMap(if (_) insertWithId(newGroup).map(Some(_)) else Future(None))
+    validation.flatMap{
+      if (_)
+        insertWithId(newGroup).map(Right(_))
+      else
+        Future(Left(TableRepositoryMessages.ValidationErrorMessage))
+    }
   }
 }

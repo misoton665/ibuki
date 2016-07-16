@@ -13,6 +13,7 @@ object ResultMessage {
   val MESSAGE_API_NOT_FOUND = "Api is not found"
   val MESSAGE_SOME_IDS_HAVE_NOT_REGISTERED = "Some ids have not registered"
   val MESSAGE_VALUE_IS_NOT_FOUND = (value: String) => s"$value is not found"
+  val MESSAGE_TABLE_REPOSITORY_ERROR = (message: String) => s"$message"
 
   case class ErrorMessage(json: JsValue)
 

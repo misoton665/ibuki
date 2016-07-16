@@ -2,12 +2,11 @@ package models
 
 import javax.inject.Inject
 
-import models.Tables.{GroupUser, GroupUserRow, IbukiUserRow, IbukiGroupRow}
+import models.Tables.{GroupUser, GroupUserRow, IbukiGroupRow, IbukiUserRow}
 import play.api.db.slick.DatabaseConfigProvider
-import services.DateConverter
+import services.{DateConverter, TableRepositoryMessages}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.Future
 
 class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseConfigProvider, groupRepo: IbukiGroupRepo, userRepo: IbukiUserRepo)
@@ -48,7 +47,11 @@ class GroupUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
     val date = DateConverter.generateNowDate
     val newGroupUser = GroupUserRow(0, groupId, userId, date)
 
-    validation.flatMap(if (_) insertWithId(newGroupUser).map(Some(_)) else Future(None))
-
+    validation.flatMap{
+      if (_)
+        insertWithId(newGroupUser).map(Right(_))
+      else
+        Future(Left(TableRepositoryMessages.ValidationErrorMessage))
+    }
   }
 }

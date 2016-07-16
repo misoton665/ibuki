@@ -4,7 +4,9 @@ import javax.inject.Inject
 
 import models.Tables.{IbukiUser, IbukiUserRow}
 import play.api.db.slick.DatabaseConfigProvider
-import services.DateConverter
+import services.{DateConverter, TableRepositoryMessages}
+import services.TableRepositoryMessages.TableRepositoryMessage
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -25,7 +27,7 @@ class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
 
   def findByDate(date: java.sql.Date) = findBy(_.date === date)
 
-  def insertIbukiUser(userId: String, userName: String, email: String): Future[Option[Int]] = {
+  def insertIbukiUser(userId: String, userName: String, email: String): Future[Either[TableRepositoryMessage, Int]] = {
     val users = this.findByUserId(userId)
     def isValidEmail(email: String): Boolean =
       """(\w+)@([\w\.]+)""".r.unapplySeq(email).isDefined
@@ -40,6 +42,11 @@ class IbukiUserRepo @Inject()(override protected val dbConfigProvider: DatabaseC
     lazy val date = DateConverter.generateNowDate
     lazy val newIbukiUser = IbukiUserRow(0, userId, userName, email, date)
 
-    validation.flatMap(if (_) insertWithId(newIbukiUser).map(Some(_)) else Future(None))
+    validation.flatMap{
+      if (_)
+        insertWithId(newIbukiUser).map(Right(_))
+      else
+        Future(Left(TableRepositoryMessages.ValidationErrorMessage))
+    }
   }
 }

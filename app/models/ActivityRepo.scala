@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import play.api.db.slick.DatabaseConfigProvider
 import models.Tables.{Activity, ActivityRow}
-import services.{DateConverter, MessageHashGenerator}
+import services.{DateConverter, MessageHashGenerator, TableRepositoryMessages}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -47,6 +47,11 @@ class ActivityRepo @Inject()(override protected val dbConfigProvider: DatabaseCo
     lazy val date = DateConverter.generateNowDate
     lazy val newActivity = ActivityRow(0, activityId, activityName, userId, groupId, date)
 
-    validation.flatMap(if (_) insertWithId(newActivity).map(Some(_)) else Future(None))
+    validation.flatMap{
+      if (_)
+        insertWithId(newActivity).map(Right(_))
+      else
+        Future(Left(TableRepositoryMessages.ValidationErrorMessage))
+    }
   }
 }
